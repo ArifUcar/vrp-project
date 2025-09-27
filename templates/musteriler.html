@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👥 Müşteri Yönetimi - VRP Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-custom { border-radius: 25px; padding: 10px 25px; font-weight: bold; }
+        .musteri-card { border-left: 4px solid #28a745; }
+        .musteri-card:hover { transform: translateY(-2px); transition: all 0.3s; }
+        .zaman-penceresi { background: #e3f2fd; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-truck"></i> VRP Web Paneli
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/araclar">
+                    <i class="fas fa-truck"></i> Araçlar
+                </a>
+                <a class="nav-link" href="/musteriler">
+                    <i class="fas fa-users"></i> Müşteriler
+                </a>
+                <a class="nav-link" href="/cozum">
+                    <i class="fas fa-route"></i> Çözüm
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ana İçerik -->
+    <div class="container mt-4">
+        <!-- Başlık -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-users"></i> Müşteri Yönetimi</h2>
+                <p class="text-muted">Müşterilerinizi ekleyin, koordinatlarını ve zaman pencerelerini ayarlayın.</p>
+            </div>
+        </div>
+
+        <!-- Müşteri Ekleme Formu -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-plus"></i> Yeni Müşteri Ekle</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="musteri-form">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Müşteri ID</label>
+                                    <input type="text" class="form-control" id="musteri-id" placeholder="M001" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Talep (kg)</label>
+                                    <input type="number" class="form-control" id="talep" placeholder="300" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Servis Süresi (dk)</label>
+                                    <input type="number" class="form-control" id="servis-suresi" placeholder="15" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Adres</label>
+                                    <input type="text" class="form-control" id="adres" placeholder="İstanbul, Türkiye">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Enlem (Latitude)</label>
+                                    <input type="number" class="form-control" id="lat" step="0.000001" placeholder="41.0082" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Boylam (Longitude)</label>
+                                    <input type="number" class="form-control" id="lon" step="0.000001" placeholder="28.9784" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-info btn-custom w-100" onclick="haritaAc()">
+                                        <i class="fas fa-map"></i> Haritadan Seç
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-success btn-custom w-100" onclick="mevcutKonumAl()">
+                                        <i class="fas fa-crosshairs"></i> Mevcut Konum
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Başlangıç Saati</label>
+                                    <select class="form-control" id="zaman-baslangic" required>
+                                        <option value="480">08:00</option>
+                                        <option value="540">09:00</option>
+                                        <option value="600">10:00</option>
+                                        <option value="660">11:00</option>
+                                        <option value="720">12:00</option>
+                                        <option value="780">13:00</option>
+                                        <option value="840">14:00</option>
+                                        <option value="900">15:00</option>
+                                        <option value="960">16:00</option>
+                                        <option value="1020">17:00</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Bitiş Saati</label>
+                                    <select class="form-control" id="zaman-bitis" required>
+                                        <option value="720">12:00</option>
+                                        <option value="780">13:00</option>
+                                        <option value="840">14:00</option>
+                                        <option value="900">15:00</option>
+                                        <option value="960">16:00</option>
+                                        <option value="1020">17:00</option>
+                                        <option value="1080">18:00</option>
+                                        <option value="1140">19:00</option>
+                                        <option value="1200">20:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success btn-custom">
+                                        <i class="fas fa-plus"></i> Müşteri Ekle
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-custom ms-2" onclick="adresBul()">
+                                        <i class="fas fa-map-marker-alt"></i> Adres Bul
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Müşteri Listesi -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-list"></i> Müşteri Listesi</h5>
+                        <span class="badge bg-success" id="musteri-sayisi">0 Müşteri</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="musteri-listesi">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-users fa-3x mb-3"></i>
+                                <p>Henüz müşteri eklenmemiş.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hızlı Müşteri Şablonları -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-magic"></i> Hızlı Müşteri Şablonları (İstanbul)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary btn-custom w-100" onclick="sablonEkle('uskudar')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Üsküdar</small>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-success btn-custom w-100" onclick="sablonEkle('umraniye')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Ümraniye</small>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-warning btn-custom w-100" onclick="sablonEkle('besiktas')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Beşiktaş</small>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-info btn-custom w-100" onclick="sablonEkle('atasehir')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Ataşehir</small>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger btn-custom w-100" onclick="sablonEkle('maltepe')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Maltepe</small>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary btn-custom w-100" onclick="sablonEkle('kadikoy')">
+                                    <i class="fas fa-map-marker-alt"></i><br>
+                                    <small>Kadıköy</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Harita Modal -->
+    <div class="modal fade" id="haritaModal" tabindex="-1" aria-labelledby="haritaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="haritaModalLabel">
+                        <i class="fas fa-map"></i> Haritadan Koordinat Seçin
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Haritada istediğiniz yere tıklayın. Koordinatlar otomatik olarak form alanlarına yazılacak.
+                    </div>
+                    <div id="harita" style="height: 500px; width: 100%;"></div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Seçilen Enlem:</strong> <span id="secilen-lat">-</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Seçilen Boylam:</strong> <span id="secilen-lon">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="koordinatSecildi()">Koordinatları Kullan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet Harita -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Sayfa yüklendiğinde müşterileri yükle
+        document.addEventListener('DOMContentLoaded', function() {
+            musterileriYukle();
+        });
+
+        // Müşteri ekleme formu
+        document.getElementById('musteri-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const musteriData = {
+                musteri_id: document.getElementById('musteri-id').value,
+                lat: parseFloat(document.getElementById('lat').value),
+                lon: parseFloat(document.getElementById('lon').value),
+                talep_kg: parseInt(document.getElementById('talep').value),
+                zaman_baslangic: parseInt(document.getElementById('zaman-baslangic').value),
+                zaman_bitis: parseInt(document.getElementById('zaman-bitis').value),
+                servis_suresi: parseInt(document.getElementById('servis-suresi').value)
+            };
+            
+            try {
+                const response = await fetch('/api/musteri-ekle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(musteriData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Müşteri başarıyla eklendi!');
+                    document.getElementById('musteri-form').reset();
+                    musterileriYukle();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        });
+
+        // Müşterileri yükle
+        async function musterileriYukle() {
+            try {
+                const response = await fetch('/api/musteriler');
+                const data = await response.json();
+                
+                document.getElementById('musteri-sayisi').textContent = data.musteriler.length + ' Müşteri';
+                
+                if (data.musteriler.length === 0) {
+                    document.getElementById('musteri-listesi').innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <p>Henüz müşteri eklenmemiş.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                data.musteriler.forEach((musteri, index) => {
+                    const baslangicSaat = Math.floor(musteri.zaman_penceresi[0] / 60);
+                    const baslangicDakika = musteri.zaman_penceresi[0] % 60;
+                    const bitisSaat = Math.floor(musteri.zaman_penceresi[1] / 60);
+                    const bitisDakika = musteri.zaman_penceresi[1] % 60;
+                    
+                    html += `
+                        <div class="card musteri-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <i class="fas fa-user fa-2x text-success"></i>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${musteri.id}</strong><br>
+                                        <small class="text-muted">Müşteri</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${musteri.talep} kg</strong><br>
+                                        <small class="text-muted">Talep</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${musteri.servis_suresi} dk</strong><br>
+                                        <small class="text-muted">Servis Süresi</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="zaman-penceresi">
+                                            ${baslangicSaat.toString().padStart(2, '0')}:${baslangicDakika.toString().padStart(2, '0')} - 
+                                            ${bitisSaat.toString().padStart(2, '0')}:${bitisDakika.toString().padStart(2, '0')}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-danger btn-sm" onclick="musteriSil('${musteri.id}')">
+                                            <i class="fas fa-trash"></i> Sil
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> 
+                                            Koordinat: ${musteri.koordinat[0].toFixed(6)}, ${musteri.koordinat[1].toFixed(6)}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('musteri-listesi').innerHTML = html;
+            } catch (error) {
+                console.error('Müşteriler yüklenirken hata:', error);
+            }
+        }
+
+        // Müşteri sil
+        async function musteriSil(musteriId) {
+            if (!confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/musteri-sil/${musteriId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Müşteri silindi!');
+                    musterileriYukle();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Şablon ekle
+        function sablonEkle(bolge) {
+            const sablonlar = {
+                'uskudar': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 41.0370,
+                    lon: 29.0013,
+                    talep: 300,
+                    servis_suresi: 15,
+                    adres: 'Üsküdar, İstanbul'
+                },
+                'umraniye': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 41.0766,
+                    lon: 29.0153,
+                    talep: 400,
+                    servis_suresi: 20,
+                    adres: 'Ümraniye, İstanbul'
+                },
+                'besiktas': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 41.0053,
+                    lon: 28.9770,
+                    talep: 350,
+                    servis_suresi: 18,
+                    adres: 'Beşiktaş, İstanbul'
+                },
+                'atasehir': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 41.0527,
+                    lon: 29.0995,
+                    talep: 450,
+                    servis_suresi: 25,
+                    adres: 'Ataşehir, İstanbul'
+                },
+                'maltepe': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 40.9830,
+                    lon: 29.0570,
+                    talep: 250,
+                    servis_suresi: 12,
+                    adres: 'Maltepe, İstanbul'
+                },
+                'kadikoy': {
+                    musteri_id: 'M-' + Date.now(),
+                    lat: 40.9887,
+                    lon: 29.0303,
+                    talep: 380,
+                    servis_suresi: 22,
+                    adres: 'Kadıköy, İstanbul'
+                }
+            };
+            
+            const sablon = sablonlar[bolge];
+            document.getElementById('musteri-id').value = sablon.musteri_id;
+            document.getElementById('lat').value = sablon.lat;
+            document.getElementById('lon').value = sablon.lon;
+            document.getElementById('talep').value = sablon.talep;
+            document.getElementById('servis-suresi').value = sablon.servis_suresi;
+            document.getElementById('adres').value = sablon.adres;
+        }
+
+        // Adres bul (basit geocoding)
+        async function adresBul() {
+            const adres = document.getElementById('adres').value;
+            if (!adres) {
+                alert('Lütfen bir adres girin!');
+                return;
+            }
+            
+            // Basit geocoding (gerçek uygulamada Google Geocoding API kullanılmalı)
+            const adresler = {
+                'istanbul': { lat: 41.0082, lon: 28.9784 },
+                'ankara': { lat: 39.9334, lon: 32.8597 },
+                'izmir': { lat: 38.4192, lon: 27.1287 },
+                'bursa': { lat: 40.1826, lon: 29.0665 },
+                'antalya': { lat: 36.8969, lon: 30.7133 }
+            };
+            
+            const adresLower = adres.toLowerCase();
+            for (const [sehir, koordinat] of Object.entries(adresler)) {
+                if (adresLower.includes(sehir)) {
+                    document.getElementById('lat').value = koordinat.lat;
+                    document.getElementById('lon').value = koordinat.lon;
+                    alert(`Koordinatlar bulundu: ${koordinat.lat}, ${koordinat.lon}`);
+                    return;
+                }
+            }
+            
+            alert('Koordinatlar bulunamadı. Haritadan seçmeyi deneyin.');
+        }
+
+        // Harita modal'ını aç
+        function haritaAc() {
+            const modal = new bootstrap.Modal(document.getElementById('haritaModal'));
+            modal.show();
+            
+            // Haritayı başlat
+            setTimeout(() => {
+                haritaBaslat();
+            }, 500);
+        }
+
+        // Haritayı başlat
+        function haritaBaslat() {
+            // Harita container'ını temizle
+            const haritaDiv = document.getElementById('harita');
+            haritaDiv.innerHTML = '';
+            
+            // İstanbul merkez koordinatları
+            const istanbul = [41.0082, 28.9784];
+            
+            // Leaflet haritası oluştur
+            const harita = L.map('harita').setView(istanbul, 10);
+            
+            // OpenStreetMap tile layer ekle
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(harita);
+            
+            // Mevcut müşterileri göster
+            musterileriHaritadaGoster(harita);
+            
+            // Harita tıklama olayı
+            harita.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lon = e.latlng.lng;
+                
+                // Önceki marker'ları temizle
+                harita.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer.options.isSelected) {
+                        harita.removeLayer(layer);
+                    }
+                });
+                
+                // Yeni marker ekle
+                const marker = L.marker([lat, lon], { isSelected: true })
+                    .addTo(harita)
+                    .bindPopup(`Seçilen Konum<br>Enlem: ${lat.toFixed(6)}<br>Boylam: ${lon.toFixed(6)}`)
+                    .openPopup();
+                
+                // Koordinatları göster
+                document.getElementById('secilen-lat').textContent = lat.toFixed(6);
+                document.getElementById('secilen-lon').textContent = lon.toFixed(6);
+                
+                // Seçilen koordinatları sakla
+                window.secilenKoordinat = { lat: lat, lon: lon };
+            });
+        }
+
+        // Müşterileri haritada göster
+        async function musterileriHaritadaGoster(harita) {
+            try {
+                const response = await fetch('/api/musteriler');
+                const data = await response.json();
+                
+                data.musteriler.forEach(musteri => {
+                    const lat = musteri.koordinat[0];
+                    const lon = musteri.koordinat[1];
+                    
+                    L.marker([lat, lon])
+                        .addTo(harita)
+                        .bindPopup(`
+                            <strong>${musteri.id}</strong><br>
+                            Talep: ${musteri.talep} kg<br>
+                            Koordinat: ${lat.toFixed(6)}, ${lon.toFixed(6)}
+                        `);
+                });
+            } catch (error) {
+                console.error('Müşteriler yüklenirken hata:', error);
+            }
+        }
+
+        // Seçilen koordinatları forma aktar
+        function koordinatSecildi() {
+            if (window.secilenKoordinat) {
+                document.getElementById('lat').value = window.secilenKoordinat.lat;
+                document.getElementById('lon').value = window.secilenKoordinat.lon;
+                
+                // Modal'ı kapat
+                const modal = bootstrap.Modal.getInstance(document.getElementById('haritaModal'));
+                modal.hide();
+                
+                alert('Koordinatlar forma aktarıldı!');
+            } else {
+                alert('Lütfen haritada bir konum seçin!');
+            }
+        }
+
+        // Mevcut konumu al
+        function mevcutKonumAl() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        document.getElementById('lat').value = lat;
+                        document.getElementById('lon').value = lon;
+                        
+                        alert(`Mevcut konumunuz alındı: ${lat.toFixed(6)}, ${lon.toFixed(6)}`);
+                    },
+                    function(error) {
+                        alert('Konum alınamadı: ' + error.message);
+                    }
+                );
+            } else {
+                alert('Tarayıcınız konum özelliğini desteklemiyor.');
+            }
+        }
+    </script>
+</body>
+</html>

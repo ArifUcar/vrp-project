@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚛 Araç Yönetimi - VRP Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-custom { border-radius: 25px; padding: 10px 25px; font-weight: bold; }
+        .arac-card { border-left: 4px solid #007bff; }
+        .arac-card:hover { transform: translateY(-2px); transition: all 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-truck"></i> VRP Web Paneli
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/araclar">
+                    <i class="fas fa-truck"></i> Araçlar
+                </a>
+                <a class="nav-link" href="/musteriler">
+                    <i class="fas fa-users"></i> Müşteriler
+                </a>
+                <a class="nav-link" href="/cozum">
+                    <i class="fas fa-route"></i> Çözüm
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ana İçerik -->
+    <div class="container mt-4">
+        <!-- Başlık -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-truck"></i> Araç Yönetimi</h2>
+                <p class="text-muted">Araçlarınızı ekleyin, düzenleyin ve yönetin.</p>
+            </div>
+        </div>
+
+        <!-- Araç Ekleme Formu -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-plus"></i> Yeni Araç Ekle</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="arac-form">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Araç ID</label>
+                                    <input type="text" class="form-control" id="arac-id" placeholder="ARAC-1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Kapasite (kg)</label>
+                                    <input type="number" class="form-control" id="kapasite" placeholder="3000" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Maliyet/km (TL)</label>
+                                    <input type="number" class="form-control" id="maliyet" step="0.1" placeholder="2.5" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Araç Tipi</label>
+                                    <input type="text" class="form-control" id="tip" placeholder="3 Ton Kamyonet" required>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Max Mesafe (km)</label>
+                                    <input type="number" class="form-control" id="max-mesafe" placeholder="150" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Hız (km/h)</label>
+                                    <input type="number" class="form-control" id="hiz" placeholder="40" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-success btn-custom w-100">
+                                        <i class="fas fa-plus"></i> Araç Ekle
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Araç Listesi -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-list"></i> Araç Listesi</h5>
+                        <span class="badge bg-primary" id="arac-sayisi">0 Araç</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="arac-listesi">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-truck fa-3x mb-3"></i>
+                                <p>Henüz araç eklenmemiş.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hızlı Araç Şablonları -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-magic"></i> Hızlı Araç Şablonları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-primary btn-custom w-100" onclick="sablonEkle('kamyonet')">
+                                    <i class="fas fa-truck"></i><br>
+                                    <small>3 Ton Kamyonet</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-success btn-custom w-100" onclick="sablonEkle('kamyon')">
+                                    <i class="fas fa-truck"></i><br>
+                                    <small>6 Ton Kamyon</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-warning btn-custom w-100" onclick="sablonEkle('minibus')">
+                                    <i class="fas fa-bus"></i><br>
+                                    <small>Minibüs</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-info btn-custom w-100" onclick="sablonEkle('van')">
+                                    <i class="fas fa-shuttle-van"></i><br>
+                                    <small>Van</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Sayfa yüklendiğinde araçları yükle
+        document.addEventListener('DOMContentLoaded', function() {
+            araclariYukle();
+        });
+
+        // Araç ekleme formu
+        document.getElementById('arac-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const aracData = {
+                arac_id: document.getElementById('arac-id').value,
+                kapasite_kg: parseInt(document.getElementById('kapasite').value),
+                maliyet_km: parseFloat(document.getElementById('maliyet').value),
+                max_mesafe_km: parseInt(document.getElementById('max-mesafe').value),
+                hiz_kmh: parseInt(document.getElementById('hiz').value),
+                tip: document.getElementById('tip').value
+            };
+            
+            try {
+                const response = await fetch('/api/arac-ekle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(aracData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Araç başarıyla eklendi!');
+                    document.getElementById('arac-form').reset();
+                    araclariYukle();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        });
+
+        // Araçları yükle
+        async function araclariYukle() {
+            try {
+                const response = await fetch('/api/araclar');
+                const data = await response.json();
+                
+                document.getElementById('arac-sayisi').textContent = data.araclar.length + ' Araç';
+                
+                if (data.araclar.length === 0) {
+                    document.getElementById('arac-listesi').innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-truck fa-3x mb-3"></i>
+                            <p>Henüz araç eklenmemiş.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                data.araclar.forEach((arac, index) => {
+                    html += `
+                        <div class="card arac-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <i class="fas fa-truck fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${arac.id}</strong><br>
+                                        <small class="text-muted">${arac.tip}</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${arac.kapasite} kg</strong><br>
+                                        <small class="text-muted">Kapasite</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${arac.maliyet_km} TL/km</strong><br>
+                                        <small class="text-muted">Maliyet</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>${arac.max_mesafe} km</strong><br>
+                                        <small class="text-muted">Max Mesafe</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-danger btn-sm" onclick="aracSil('${arac.id}')">
+                                            <i class="fas fa-trash"></i> Sil
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('arac-listesi').innerHTML = html;
+            } catch (error) {
+                console.error('Araçlar yüklenirken hata:', error);
+            }
+        }
+
+        // Araç sil
+        async function aracSil(aracId) {
+            if (!confirm('Bu araçı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/arac-sil/${aracId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Araç silindi!');
+                    araclariYukle();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Şablon ekle
+        function sablonEkle(tip) {
+            const sablonlar = {
+                'kamyonet': {
+                    arac_id: 'KAMYONET-' + Date.now(),
+                    kapasite: 3000,
+                    maliyet: 2.5,
+                    max_mesafe: 150,
+                    hiz: 40,
+                    tip: '3 Ton Kamyonet'
+                },
+                'kamyon': {
+                    arac_id: 'KAMYON-' + Date.now(),
+                    kapasite: 6000,
+                    maliyet: 3.5,
+                    max_mesafe: 200,
+                    hiz: 35,
+                    tip: '6 Ton Kamyon'
+                },
+                'minibus': {
+                    arac_id: 'MINIBUS-' + Date.now(),
+                    kapasite: 1500,
+                    maliyet: 2.0,
+                    max_mesafe: 100,
+                    hiz: 45,
+                    tip: 'Minibüs'
+                },
+                'van': {
+                    arac_id: 'VAN-' + Date.now(),
+                    kapasite: 2000,
+                    maliyet: 2.2,
+                    max_mesafe: 120,
+                    hiz: 42,
+                    tip: 'Van'
+                }
+            };
+            
+            const sablon = sablonlar[tip];
+            document.getElementById('arac-id').value = sablon.arac_id;
+            document.getElementById('kapasite').value = sablon.kapasite;
+            document.getElementById('maliyet').value = sablon.maliyet;
+            document.getElementById('max-mesafe').value = sablon.max_mesafe;
+            document.getElementById('hiz').value = sablon.hiz;
+            document.getElementById('tip').value = sablon.tip;
+        }
+    </script>
+</body>
+</html>

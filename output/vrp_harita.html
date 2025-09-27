@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VRP Çözümü - Google Maps</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxQiL7wXty6805lLefMIw70Jhmy03C538&libraries=geometry"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        #info { position: absolute; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); max-width: 300px; }
+        .route-info { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info">
+        <h3>🚛 VRP Çözüm Özeti</h3>
+        <p><strong>Toplam Mesafe:</strong> 44.04 km</p>
+        <p><strong>Toplam Maliyet:</strong> 154.13 TL</p>
+        <p><strong>Kullanılan Araç:</strong> 1</p>
+        <p><strong>Servis Edilen Müşteri:</strong> 4</p>
+    </div>
+
+    <script>
+        function initMap() {
+            // Harita merkezi (depo)
+            const center = { lat: 41.0082, lng: 28.9784 };
+            
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: center,
+                mapTypeId: 'roadmap'
+            });
+            
+            // Renkler
+            const colors = ['#FF0000', '#0000FF', '#00FF00', '#FF00FF', '#FFA500', '#800080', '#008000', '#000080'];
+            
+            // Depo marker'ı
+            new google.maps.Marker({
+                position: center,
+                map: map,
+                title: 'DEPO',
+                icon: {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                    scaledSize: new google.maps.Size(30, 30)
+                }
+            });
+            
+            // Rotaları çiz
+            
+        // Directions Service ve Renderer
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            suppressMarkers: true,
+            preserveViewport: true
+        });
+        directionsRenderer.setMap(map);
+        
+        // Rota çizme fonksiyonu
+        function drawRoute(waypoints, color, routeIndex) {
+            const request = {
+                origin: waypoints[0],
+                destination: waypoints[waypoints.length - 1],
+                waypoints: waypoints.slice(1, -1).map(point => ({
+                    location: point,
+                    stopover: true
+                })),
+                travelMode: google.maps.TravelMode.DRIVING,
+                optimizeWaypoints: false
+            };
+            
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    const renderer = new google.maps.DirectionsRenderer({
+                        suppressMarkers: true,
+                        polylineOptions: {
+                            strokeColor: color,
+                            strokeWeight: 4,
+                            strokeOpacity: 0.8
+                        }
+                    });
+                    renderer.setDirections(result);
+                    renderer.setMap(map);
+                } else {
+                    console.log('Rota çizilemedi:', status);
+                }
+            });
+        }
+        
+        // Rotaları çiz
+        
+
+            // Araç 3 - 6 Ton Kamyon rotası
+            const route0Waypoints = [{lat: 41.0082, lng: 28.9784}, {lat: 41.037, lng: 29.0013}, {lat: 41.0766, lng: 29.0153}, {lat: 40.983, lng: 29.057}, {lat: 41.0053, lng: 28.977}, {lat: 41.0082, lng: 28.9784}];
+            drawRoute(route0Waypoints, '#FF0000', 0);
+            
+
+                    new google.maps.Marker({
+                        position: {lat: 41.037, lng: 29.0013},
+                        map: map,
+                        title: 'Müşteri M-1758923570728 - 300 kg - Sıra: 1',
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(25, 25)
+                        },
+                        label: {
+                            text: '1',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '12px'
+                        }
+                    });
+                    
+
+                    new google.maps.Marker({
+                        position: {lat: 41.0766, lng: 29.0153},
+                        map: map,
+                        title: 'Müşteri M-1758923576560 - 400 kg - Sıra: 2',
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(25, 25)
+                        },
+                        label: {
+                            text: '2',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '12px'
+                        }
+                    });
+                    
+
+                    new google.maps.Marker({
+                        position: {lat: 40.983, lng: 29.057},
+                        map: map,
+                        title: 'Müşteri M-1758923585324 - 250 kg - Sıra: 3',
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(25, 25)
+                        },
+                        label: {
+                            text: '3',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '12px'
+                        }
+                    });
+                    
+
+                    new google.maps.Marker({
+                        position: {lat: 41.0053, lng: 28.977},
+                        map: map,
+                        title: 'Müşteri M-1758923580576 - 350 kg - Sıra: 4',
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(25, 25)
+                        },
+                        label: {
+                            text: '4',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '12px'
+                        }
+                    });
+                    
+        }
+    </script>
+    
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxQiL7wXty6805lLefMIw70Jhmy03C538&callback=initMap"></script>
+</body>
+</html>
+        

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚛 VRP Web Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .status-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .action-card { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .info-card { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        .btn-custom { border-radius: 25px; padding: 10px 25px; font-weight: bold; }
+        .stat-number { font-size: 2rem; font-weight: bold; }
+        .stat-label { font-size: 0.9rem; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-truck"></i> VRP Web Paneli
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/araclar">
+                    <i class="fas fa-truck"></i> Araçlar
+                </a>
+                <a class="nav-link" href="/musteriler">
+                    <i class="fas fa-users"></i> Müşteriler
+                </a>
+                <a class="nav-link" href="/cozum">
+                    <i class="fas fa-route"></i> Çözüm
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ana İçerik -->
+    <div class="container mt-4">
+        <!-- Hoş Geldiniz -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card status-card">
+                    <div class="card-body text-center">
+                        <h2><i class="fas fa-warehouse"></i> VRP Optimizasyon Paneli</h2>
+                        <p class="mb-0">Araç rotalama probleminizi kolayca çözün!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Durum Kartları -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card info-card">
+                    <div class="card-body text-center">
+                        <div class="stat-number" id="arac-sayisi">0</div>
+                        <div class="stat-label">Araç Sayısı</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card info-card">
+                    <div class="card-body text-center">
+                        <div class="stat-number" id="musteri-sayisi">0</div>
+                        <div class="stat-label">Müşteri Sayısı</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card info-card">
+                    <div class="card-body text-center">
+                        <div class="stat-number" id="cozum-durumu">❌</div>
+                        <div class="stat-label">Çözüm Durumu</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card info-card">
+                    <div class="card-body text-center">
+                        <div class="stat-number" id="depo-durumu">❌</div>
+                        <div class="stat-label">Depo Ayarlı</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hızlı İşlemler -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card action-card">
+                    <div class="card-body">
+                        <h5><i class="fas fa-truck"></i> Araç Yönetimi</h5>
+                        <p>Araçlarınızı ekleyin, düzenleyin ve yönetin.</p>
+                        <a href="/araclar" class="btn btn-light btn-custom">
+                            <i class="fas fa-plus"></i> Araç Ekle
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card action-card">
+                    <div class="card-body">
+                        <h5><i class="fas fa-users"></i> Müşteri Yönetimi</h5>
+                        <p>Müşterilerinizi ekleyin ve zaman pencerelerini ayarlayın.</p>
+                        <a href="/musteriler" class="btn btn-light btn-custom">
+                            <i class="fas fa-plus"></i> Müşteri Ekle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depo Ayarları -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-warehouse"></i> Depo Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Enlem (Latitude)</label>
+                                <input type="number" class="form-control" id="depo-lat" step="0.000001" placeholder="41.0082">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Boylam (Longitude)</label>
+                                <input type="number" class="form-control" id="depo-lon" step="0.000001" placeholder="28.9784">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-info btn-custom w-100" onclick="depoHaritaAc()">
+                                    <i class="fas fa-map"></i> Haritadan Seç
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-success btn-custom w-100" onclick="depoMevcutKonum()">
+                                    <i class="fas fa-crosshairs"></i> Mevcut Konum
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                Örnek: İstanbul (41.0082, 28.9784) | Ankara (39.9334, 32.8597)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Çözüm ve Harita -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cogs"></i> Optimizasyon Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="google-maps-kullan">
+                                <label class="form-check-label" for="google-maps-kullan">
+                                    <i class="fas fa-map"></i> Google Maps API Kullan
+                                </label>
+                            </div>
+                            <small class="text-muted">Gerçek trafik bilgisi ile optimizasyon</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Zaman Limiti (saniye)</label>
+                            <input type="number" class="form-control" id="zaman-limiti" value="60" min="10" max="300">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="esnek-kisitlamalar" checked>
+                                <label class="form-check-label" for="esnek-kisitlamalar">
+                                    <i class="fas fa-tools"></i> Esnek Kısıtlamalar
+                                </label>
+                            </div>
+                            <small class="text-muted">Araç kapasitelerini %50 artırır, çözüm bulma şansını yükseltir</small>
+                        </div>
+                        <button class="btn btn-success btn-custom w-100" onclick="problemiCoz()">
+                            <i class="fas fa-play"></i> Problemi Çöz
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-map"></i> Harita Oluştur</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Harita Adı</label>
+                            <input type="text" class="form-control" id="harita-adi" value="vrp_harita.html">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="harita-google-maps">
+                                <label class="form-check-label" for="harita-google-maps">
+                                    <i class="fas fa-map"></i> Google Maps Haritası
+                                </label>
+                            </div>
+                            <small class="text-muted">Gerçek yollar ile harita</small>
+                        </div>
+                        <button class="btn btn-info btn-custom w-100" onclick="haritaOlustur()">
+                            <i class="fas fa-map"></i> Harita Oluştur
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sonuçlar -->
+        <div class="row mt-4" id="sonuclar" style="display: none;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar"></i> Çözüm Sonuçları</h5>
+                    </div>
+                    <div class="card-body" id="sonuc-icerik">
+                        <!-- Sonuçlar buraya gelecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Bilgileri -->
+        <div class="row mt-4" id="debug-bilgileri" style="display: none;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bug"></i> Debug Bilgileri</h5>
+                    </div>
+                    <div class="card-body" id="debug-icerik">
+                        <!-- Debug bilgileri buraya gelecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Depo Harita Modal -->
+    <div class="modal fade" id="depoHaritaModal" tabindex="-1" aria-labelledby="depoHaritaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="depoHaritaModalLabel">
+                        <i class="fas fa-warehouse"></i> Depo Konumu Seçin
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Haritada depo konumunuza tıklayın. Koordinatlar otomatik olarak form alanlarına yazılacak.
+                    </div>
+                    <div id="depo-harita" style="height: 500px; width: 100%;"></div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Seçilen Enlem:</strong> <span id="depo-secilen-lat">-</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Seçilen Boylam:</strong> <span id="depo-secilen-lon">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="depoKoordinatSecildi()">Koordinatları Kullan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet Harita -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Sayfa yüklendiğinde durumu güncelle
+        document.addEventListener('DOMContentLoaded', function() {
+            durumGuncelle();
+        });
+
+        // Durum güncelleme
+        async function durumGuncelle() {
+            try {
+                const response = await fetch('/api/durum');
+                const durum = await response.json();
+                
+                document.getElementById('arac-sayisi').textContent = durum.arac_sayisi;
+                document.getElementById('musteri-sayisi').textContent = durum.musteri_sayisi;
+                document.getElementById('cozum-durumu').textContent = durum.cozum_var ? '✅' : '❌';
+                document.getElementById('depo-durumu').textContent = durum.depo ? '✅' : '❌';
+                
+                if (durum.depo) {
+                    document.getElementById('depo-lat').value = durum.depo[0];
+                    document.getElementById('depo-lon').value = durum.depo[1];
+                }
+            } catch (error) {
+                console.error('Durum güncellenirken hata:', error);
+            }
+        }
+
+        // Depo ayarla
+        async function depoAyarla() {
+            const lat = document.getElementById('depo-lat').value;
+            const lon = document.getElementById('depo-lon').value;
+            
+            if (!lat || !lon) {
+                alert('Lütfen enlem ve boylam değerlerini girin!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/depo-ayarla', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lat: lat,
+                        lon: lon
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Depo koordinatları başarıyla ayarlandı!');
+                    durumGuncelle();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Problemi çöz
+        async function problemiCoz() {
+            const googleMapsKullan = document.getElementById('google-maps-kullan').checked;
+            const zamanLimiti = document.getElementById('zaman-limiti').value;
+            const esnekKisitlamalar = document.getElementById('esnek-kisitlamalar').checked;
+            
+            try {
+                const response = await fetch('/api/coz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        google_maps_kullan: googleMapsKullan,
+                        zaman_limiti: parseInt(zamanLimiti),
+                        esnek_kisitlamalar: esnekKisitlamalar
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Çözüm bulundu!');
+                    sonuclariGoster(result.cozum);
+                    durumGuncelle();
+                    document.getElementById('debug-bilgileri').style.display = 'none';
+                } else {
+                    alert('Hata: ' + result.message);
+                    if (result.debug_info) {
+                        debugBilgileriniGoster(result.debug_info);
+                    }
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Harita oluştur
+        async function haritaOlustur() {
+            const haritaAdi = document.getElementById('harita-adi').value;
+            const googleMapsKullan = document.getElementById('harita-google-maps').checked;
+            
+            try {
+                const response = await fetch('/api/harita-olustur', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        harita_adi: haritaAdi,
+                        google_maps_kullan: googleMapsKullan
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Harita oluşturuldu! Dosya: ' + result.harita_yolu);
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Sonuçları göster
+        function sonuclariGoster(cozum) {
+            let html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-primary">${cozum.toplam_mesafe} km</h3>
+                            <small>Toplam Mesafe</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-success">${cozum.toplam_maliyet} TL</h3>
+                            <small>Toplam Maliyet</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-warning">${cozum.kullanilan_araclar}</h3>
+                            <small>Kullanılan Araç</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-info">${cozum.servis_edilen_musteriler.length}</h3>
+                            <small>Servis Edilen Müşteri</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            `;
+            
+            cozum.rotalar.forEach((rota, index) => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-truck"></i> Araç ${rota.arac_id} - ${rota.arac_tipi}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Mesafe:</strong> ${rota.mesafe} km
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Yük:</strong> ${rota.yuk} kg
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Maliyet:</strong> ${rota.maliyet} TL
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Müşteri:</strong> ${rota.duraklar.filter(d => d.tip === 'Müşteri').length}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('sonuc-icerik').innerHTML = html;
+            document.getElementById('sonuclar').style.display = 'block';
+        }
+
+        // Debug bilgilerini göster
+        function debugBilgileriniGoster(debugInfo) {
+            let html = `
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Çözüm Bulunamadı!</h6>
+                    <p>VRP problemi çözülemedi. Aşağıdaki bilgileri kontrol edin:</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-truck"></i> Araç Bilgileri</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Araç Sayısı:</strong> ${debugInfo.arac_sayisi}</p>
+                                <p><strong>Toplam Kapasite:</strong> ${debugInfo.toplam_kapasite} kg</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-users"></i> Müşteri Bilgileri</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Müşteri Sayısı:</strong> ${debugInfo.musteri_sayisi}</p>
+                                <p><strong>Toplam Talep:</strong> ${debugInfo.toplam_talep} kg</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-warehouse"></i> Sistem Durumu</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Depo Ayarlandı:</strong> ${debugInfo.depo_ayarli ? '✅ Evet' : '❌ Hayır'}</p>
+                                <p><strong>Mesafe Matrisi:</strong> ${debugInfo.mesafe_matrisi_var ? '✅ Var' : '❌ Yok'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-lightbulb"></i> Öneriler</h6>
+                            </div>
+                            <div class="card-body">
+                                ${debugInfo.toplam_talep > debugInfo.toplam_kapasite ? 
+                                    '<p class="text-danger"><strong>⚠️ Talep > Kapasite:</strong> Daha fazla araç ekleyin!</p>' : 
+                                    '<p class="text-success"><strong>✅ Kapasite Yeterli</strong></p>'}
+                                ${!debugInfo.depo_ayarli ? 
+                                    '<p class="text-warning"><strong>⚠️ Depo Ayarı:</strong> Depo koordinatlarını ayarlayın!</p>' : 
+                                    '<p class="text-success"><strong>✅ Depo Ayarlandı</strong></p>'}
+                                <p class="text-info"><strong>💡 İpucu:</strong> Zaman limitini artırın veya araç kapasitelerini büyütün.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-tools"></i> Çözüm Önerileri:</h6>
+                    <ul class="mb-0">
+                        <li><strong>Araç Kapasitesi:</strong> Araçların kapasitesini artırın</li>
+                        <li><strong>Araç Sayısı:</strong> Daha fazla araç ekleyin</li>
+                        <li><strong>Zaman Limiti:</strong> Optimizasyon süresini artırın (60-120 saniye)</li>
+                        <li><strong>Müşteri Talep:</strong> Müşteri taleplerini azaltın</li>
+                        <li><strong>Depo Konumu:</strong> Depo koordinatlarını kontrol edin</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('debug-icerik').innerHTML = html;
+            document.getElementById('debug-bilgileri').style.display = 'block';
+        }
+
+        // Depo harita modal'ını aç
+        function depoHaritaAc() {
+            const modal = new bootstrap.Modal(document.getElementById('depoHaritaModal'));
+            modal.show();
+            
+            // Haritayı başlat
+            setTimeout(() => {
+                depoHaritaBaslat();
+            }, 500);
+        }
+
+        // Depo haritasını başlat
+        function depoHaritaBaslat() {
+            // Harita container'ını temizle
+            const haritaDiv = document.getElementById('depo-harita');
+            haritaDiv.innerHTML = '';
+            
+            // İstanbul merkez koordinatları
+            const istanbul = [41.0082, 28.9784];
+            
+            // Leaflet haritası oluştur
+            const harita = L.map('depo-harita').setView(istanbul, 10);
+            
+            // OpenStreetMap tile layer ekle
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(harita);
+            
+            // Mevcut müşterileri göster
+            musterileriDepoHaritadaGoster(harita);
+            
+            // Harita tıklama olayı
+            harita.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lon = e.latlng.lng;
+                
+                // Önceki marker'ları temizle
+                harita.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer.options.isDepoSelected) {
+                        harita.removeLayer(layer);
+                    }
+                });
+                
+                // Yeni marker ekle
+                const marker = L.marker([lat, lon], { isDepoSelected: true })
+                    .addTo(harita)
+                    .bindPopup(`Depo Konumu<br>Enlem: ${lat.toFixed(6)}<br>Boylam: ${lon.toFixed(6)}`)
+                    .openPopup();
+                
+                // Koordinatları göster
+                document.getElementById('depo-secilen-lat').textContent = lat.toFixed(6);
+                document.getElementById('depo-secilen-lon').textContent = lon.toFixed(6);
+                
+                // Seçilen koordinatları sakla
+                window.depoSecilenKoordinat = { lat: lat, lon: lon };
+            });
+        }
+
+        // Müşterileri depo haritasında göster
+        async function musterileriDepoHaritadaGoster(harita) {
+            try {
+                const response = await fetch('/api/musteriler');
+                const data = await response.json();
+                
+                data.musteriler.forEach(musteri => {
+                    const lat = musteri.koordinat[0];
+                    const lon = musteri.koordinat[1];
+                    
+                    L.marker([lat, lon])
+                        .addTo(harita)
+                        .bindPopup(`
+                            <strong>${musteri.id}</strong><br>
+                            Talep: ${musteri.talep} kg<br>
+                            Koordinat: ${lat.toFixed(6)}, ${lon.toFixed(6)}
+                        `);
+                });
+            } catch (error) {
+                console.error('Müşteriler yüklenirken hata:', error);
+            }
+        }
+
+        // Seçilen depo koordinatlarını forma aktar
+        function depoKoordinatSecildi() {
+            if (window.depoSecilenKoordinat) {
+                document.getElementById('depo-lat').value = window.depoSecilenKoordinat.lat;
+                document.getElementById('depo-lon').value = window.depoSecilenKoordinat.lon;
+                
+                // Modal'ı kapat
+                const modal = bootstrap.Modal.getInstance(document.getElementById('depoHaritaModal'));
+                modal.hide();
+                
+                alert('Depo koordinatları forma aktarıldı!');
+            } else {
+                alert('Lütfen haritada bir konum seçin!');
+            }
+        }
+
+        // Depo mevcut konumu al
+        function depoMevcutKonum() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        document.getElementById('depo-lat').value = lat;
+                        document.getElementById('depo-lon').value = lon;
+                        
+                        alert(`Mevcut konumunuz alındı: ${lat.toFixed(6)}, ${lon.toFixed(6)}`);
+                    },
+                    function(error) {
+                        alert('Konum alınamadı: ' + error.message);
+                    }
+                );
+            } else {
+                alert('Tarayıcınız konum özelliğini desteklemiyor.');
+            }
+        }
+    </script>
+</body>
+</html>
